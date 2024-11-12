@@ -91,5 +91,21 @@ RSpec.describe Api::V1::SubscriptionsController, type: :request do
             expect(json[:data][:attributes][:inactive_customers].length).to eq 0
             expect(json[:data][:attributes][:teas].length).to eq 3
         end
+
+        it "does not work without a valid id" do
+            headers = { 
+                "CONTENT_TYPE" => "application/json",
+            }
+            get api_v1_subscription_path(9999999999999999999999999)
+
+            json = JSON.parse(response.body, symbolize_names: true)
+
+            expect(response.status).to eq(404)
+
+            expect(json).to have_key(:message)
+            expect(json[:message]).to eq("Couldn't find Subscription with 'id'=9999999999999999999999999")
+            expect(json).to have_key(:status)
+            expect(json[:status]).to eq(404)
+        end
     end
 end
