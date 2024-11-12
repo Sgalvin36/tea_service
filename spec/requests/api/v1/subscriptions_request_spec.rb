@@ -66,6 +66,50 @@ RSpec.describe Api::V1::SubscriptionsController, type: :request do
                 expect(subscription[:attributes]).to include(:status)
             end
         end
+
+        it "can filter the request if the user_params match" do
+            headers = { 
+                "CONTENT_TYPE" => "application/json",
+            }
+            search_params = {
+                by_price: 15
+            }
+            get api_v1_subscriptions_path(search_params)
+            expect(response).to be_successful
+            json = JSON.parse(response.body, symbolize_names: true)
+
+            expect(json).to have_key(:data)
+            expect(json[:data].length).to eq 3
+            json[:data].each do |subscription|
+                expect(subscription[:type]).to eq("subscription")
+                expect(subscription[:attributes]).to include(:title)
+                expect(subscription[:attributes][:price]).to be < search_params[:by_price]
+                expect(subscription[:attributes]).to include(:frequency)
+                expect(subscription[:attributes]).to include(:status)
+            end
+        end
+
+        it "returns all if the filter does not contain the right params" do
+            headers = { 
+                "CONTENT_TYPE" => "application/json",
+            }
+            search_params = {
+                by_brew_time: 15
+            }
+            get api_v1_subscriptions_path(search_params)
+            expect(response).to be_successful
+            json = JSON.parse(response.body, symbolize_names: true)
+
+            expect(json).to have_key(:data)
+            expect(json[:data].length).to eq 4
+            json[:data].each do |subscription|
+                expect(subscription[:type]).to eq("subscription")
+                expect(subscription[:attributes]).to include(:title)
+                expect(subscription[:attributes]).to include(:price)
+                expect(subscription[:attributes]).to include(:frequency)
+                expect(subscription[:attributes]).to include(:status)
+            end
+        end
     end
 
     describe "GET one subscription Endpoint" do
