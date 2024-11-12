@@ -67,4 +67,29 @@ RSpec.describe Api::V1::SubscriptionsController, type: :request do
             end
         end
     end
+
+    describe "GET one subscription Endpoint" do
+        it "can make the request successfully" do
+            headers = { 
+                "CONTENT_TYPE" => "application/json",
+            }
+            params = {
+                id: @subscription1.id
+            }
+            get api_v1_subscription_path(params)
+            expect(response).to be_successful
+            json = JSON.parse(response.body, symbolize_names: true)
+
+            expect(json).to have_key(:data)
+            expect(json[:data][:id]).to eq(@subscription1.id)
+            expect(json[:data][:type]).to eq("subscription")
+            expect(json[:data][:attributes][:title]).to eq("Fresh n Fruity")
+            expect(json[:data][:attributes][:price]).to eq(12.99)
+            expect(json[:data][:attributes][:frequency]).to eq("Monthly")
+            expect(json[:data][:attributes][:status]).to eq("active")
+            expect(json[:data][:attributes][:active_customers].length).to eq 2
+            expect(json[:data][:attributes][:inactive_customers].length).to eq 0
+            expect(json[:data][:attributes][:teas].length).to eq 3
+        end
+    end
 end

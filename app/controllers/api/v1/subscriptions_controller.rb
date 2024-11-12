@@ -11,7 +11,8 @@ class Api::V1::SubscriptionsController < ApplicationController
     end
 
     def show
-
+        subscription = Subscription.find(user_params[:id])
+        render json: SubscriptionSerializer.format_subscription_details(subscription)
     end
 
     def update
