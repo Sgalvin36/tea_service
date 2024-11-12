@@ -5,4 +5,8 @@ RSpec.describe SubscriptionsTea, type: :model do
         it { should belong_to :tea }
         it { should belong_to :subscription }
     end
+
+    describe "validations" do
+        it { should validate_presence_of(:frequency) }
+    end
 end
