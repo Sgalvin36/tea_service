@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe SubscriptionController, type: :request do
+RSpec.describe Api::V1::SubscriptionsController, type: :request do
     before(:all) do
         SubscriptionsTea.delete_all
         CustomersSubscription.delete_all
@@ -21,31 +21,50 @@ RSpec.describe SubscriptionController, type: :request do
         customer4 = Customer.create!(first_name: "Brandon", last_name: "Bradley", email: "BBLover@email.com", address: "231 Main St.", city: "Denver", state: "CO", zip_code:80502)
         
         @subscription1 = Subscription.create!(title:"Fresh n Fruity", price:12.99, frequency:"Monthly", status:"active")
-        SubscriptionsTea.create!(subscription_id: @subscription1.id , tea_id: @tea5.id)
-        SubscriptionsTea.create!(subscription_id: @subscription1.id , tea_id: @tea2.id)
-        SubscriptionsTea.create!(subscription_id: @subscription1.id , tea_id: @tea4.id)
+        SubscriptionsTea.create!(subscription_id: @subscription1.id , tea_id: tea5.id)
+        SubscriptionsTea.create!(subscription_id: @subscription1.id , tea_id: tea2.id)
+        SubscriptionsTea.create!(subscription_id: @subscription1.id , tea_id: tea4.id)
         CustomersSubscription.create!(subscription_id: @subscription1.id, customer_id: customer4.id, status: "canceled")
         CustomersSubscription.create!(subscription_id: @subscription1.id, customer_id: customer2.id, status: "active")
         CustomersSubscription.create!(subscription_id: @subscription1.id, customer_id: customer3.id, status: "active")
 
         @subscription2 = Subscription.create!(title:"The Big Haul", price:36.99, frequency:"Quarterly", status:"active")
-        SubscriptionsTea.create!(subscription_id: @subscription2.id , tea_id: @tea1.id)
-        SubscriptionsTea.create!(subscription_id: @subscription2.id , tea_id: @tea2.id)
-        SubscriptionsTea.create!(subscription_id: @subscription2.id , tea_id: @tea3.id)
-        SubscriptionsTea.create!(subscription_id: @subscription2.id , tea_id: @tea6.id)
+        SubscriptionsTea.create!(subscription_id: @subscription2.id , tea_id: tea1.id)
+        SubscriptionsTea.create!(subscription_id: @subscription2.id , tea_id: tea2.id)
+        SubscriptionsTea.create!(subscription_id: @subscription2.id , tea_id: tea3.id)
+        SubscriptionsTea.create!(subscription_id: @subscription2.id , tea_id: tea6.id)
         CustomersSubscription.create!(subscription_id: @subscription2.id, customer_id: customer4.id, status: "active")
         CustomersSubscription.create!(subscription_id: @subscription2.id, customer_id: customer1.id, status: "active")
 
         @subscription3 = Subscription.create!(title:"Bold to Drink", price:4.99, frequency:"Bi-Weekly", status:"active")
-        SubscriptionsTea.create!(subscription_id: @subscription3.id , tea_id: @tea5.id)
-        SubscriptionsTea.create!(subscription_id: @subscription3.id , tea_id: @tea4.id)
+        SubscriptionsTea.create!(subscription_id: @subscription3.id , tea_id: tea5.id)
+        SubscriptionsTea.create!(subscription_id: @subscription3.id , tea_id: tea4.id)
         CustomersSubscription.create!(subscription_id: @subscription3.id, customer_id: customer4.id, status: "canceled")
         CustomersSubscription.create!(subscription_id: @subscription3.id, customer_id: customer3.id, status: "active")
 
         @subscription4 = Subscription.create!(title:"Classic Time", price:4.99, frequency:"Bi-Weekly", status:"canceled")
-        SubscriptionsTea.create!(subscription_id: @subscription4.id , tea_id: @tea1.id)
+        SubscriptionsTea.create!(subscription_id: @subscription4.id , tea_id: tea1.id)
         CustomersSubscription.create!(subscription_id: @subscription4.id, customer_id: customer4.id, status: "canceled")
     end
 
+    describe "GET all subscriptions Endpoint" do
+        it "can make the request successfully" do
+            headers = { 
+                "CONTENT_TYPE" => "application/json",
+            }
 
+            get api_v1_subscriptions_path
+            expect(response).to be_successful
+            json = JSON.parse(response.body, symbolize_names: true)
+
+            expect(json).to have_key(:data)
+            json[:data].each do |subscription|
+                expect(subscription[:type]).to eq("subscription")
+                expect(subscription[:attributes]).to include(:title)
+                expect(subscription[:attributes]).to include(:price)
+                expect(subscription[:attributes]).to include(:frequency)
+                expect(subscription[:attributes]).to include(:status)
+            end
+        end
+    end
 end
