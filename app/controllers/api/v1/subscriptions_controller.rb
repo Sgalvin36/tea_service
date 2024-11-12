@@ -18,12 +18,17 @@ class Api::V1::SubscriptionsController < ApplicationController
     end
 
     def update
-
+        subscription = Subscription.find(user_params[:id])
+        if user_params[:status].present?
+            subscription.update!(status: user_params[:status])
+            subscription.cancel_subscriptions if user_params[:status] == 'canceled'
+        end
+        render json: SubscriptionSerializer.format_subscription_details(subscription), status: :created
     end
 
     private
     def user_params
-        params.permit(:id, :by_location, :by_recipe, :by_ingredient, :by_style, :by_price, :by_serving)
+        params.permit(:id, :status)
     end
 
     def record_not_found(exception)

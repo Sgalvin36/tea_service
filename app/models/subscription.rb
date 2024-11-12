@@ -8,4 +8,8 @@ class Subscription < ApplicationRecord
     validates :price, numericality: true
     validates :frequency, presence: true
     validates :status, presence: true
+
+    def cancel_subscriptions
+        canceled_subs = self.customers_subscriptions.where("customers_subscriptions.status = ?", 'active').update_all(status: 'canceled')
+    end
 end

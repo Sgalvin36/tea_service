@@ -14,7 +14,7 @@ class SubscriptionSerializer
                     frequency: sub_dets.frequency,
                     status: sub_dets.status,
                     active_customers: format_customers(sub_dets, "active"),
-                    inactive_customers: format_customers(sub_dets, "inactive") ,
+                    inactive_customers: format_customers(sub_dets, "canceled") ,
                     teas: format_teas(sub_dets)
                 }
             }

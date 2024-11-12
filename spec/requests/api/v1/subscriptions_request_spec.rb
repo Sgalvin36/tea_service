@@ -88,7 +88,7 @@ RSpec.describe Api::V1::SubscriptionsController, type: :request do
             expect(json[:data][:attributes][:frequency]).to eq("Monthly")
             expect(json[:data][:attributes][:status]).to eq("active")
             expect(json[:data][:attributes][:active_customers].length).to eq 2
-            expect(json[:data][:attributes][:inactive_customers].length).to eq 0
+            expect(json[:data][:attributes][:inactive_customers].length).to eq 1
             expect(json[:data][:attributes][:teas].length).to eq 3
         end
 
@@ -106,6 +106,60 @@ RSpec.describe Api::V1::SubscriptionsController, type: :request do
             expect(json[:message]).to eq("Couldn't find Subscription with 'id'=9999999999999999999999999")
             expect(json).to have_key(:status)
             expect(json[:status]).to eq(404)
+        end
+    end
+
+    describe "PUT one subscription status to canceled" do
+        it "updates the subscription accordingly" do
+            headers = { 
+                "CONTENT_TYPE" => "application/json",
+            }
+            params = {
+                id: @subscription1.id,
+                status: "canceled"
+            }
+            put api_v1_subscription_path(params)
+
+            json = JSON.parse(response.body, symbolize_names: true)
+            expect(response).to be_successful
+            expect(response.status).to be(201)
+
+            expect(json).to have_key(:data)
+            expect(json[:data][:id]).to eq(@subscription1.id)
+            expect(json[:data][:type]).to eq("subscription")
+            expect(json[:data][:attributes][:title]).to eq("Fresh n Fruity")
+            expect(json[:data][:attributes][:price]).to eq(12.99)
+            expect(json[:data][:attributes][:frequency]).to eq("Monthly")
+            expect(json[:data][:attributes][:status]).to eq("canceled")
+            expect(json[:data][:attributes][:active_customers].length).to eq 0
+            expect(json[:data][:attributes][:inactive_customers].length).to eq 3
+            expect(json[:data][:attributes][:teas].length).to eq 3
+        end
+
+        it "updates the subscription's customers if the subscription is canceled" do
+            headers = { 
+                "CONTENT_TYPE" => "application/json",
+            }
+            params = {
+                id: @subscription1.id,
+                status: "canceled"
+            }
+            put api_v1_subscription_path(params)
+
+            json = JSON.parse(response.body, symbolize_names: true)
+            expect(response).to be_successful
+            expect(response.status).to be(201)
+
+            expect(json).to have_key(:data)
+            expect(json[:data][:id]).to eq(@subscription1.id)
+            expect(json[:data][:type]).to eq("subscription")
+            expect(json[:data][:attributes][:title]).to eq("Fresh n Fruity")
+            expect(json[:data][:attributes][:price]).to eq(12.99)
+            expect(json[:data][:attributes][:frequency]).to eq("Monthly")
+            expect(json[:data][:attributes][:status]).to eq("canceled")
+            expect(json[:data][:attributes][:active_customers].length).to eq 0
+            expect(json[:data][:attributes][:inactive_customers].length).to eq 3
+            expect(json[:data][:attributes][:teas].length).to eq 3
         end
     end
 end
