@@ -1,4 +1,4 @@
-# Fresh Recipes API
+# Tea Subscription API
 
 This is a backend database that helps track subscriptions for a company that sells tea.
 
